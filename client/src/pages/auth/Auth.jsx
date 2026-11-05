@@ -73,14 +73,17 @@ function useTimeline() {
 
 function Scene() {
   const { step, score } = useTimeline();
-  const boxRef = useRef(null);
+  const wrapRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   useLayoutEffect(() => {
-    const el = boxRef.current;
+    const el = wrapRef.current;
     if (!el) return undefined;
-    const ro = new ResizeObserver(([e]) => setScale(Math.min(1.05, e.contentRect.width / W)));
+    const ro = new ResizeObserver(([e]) => {
+      const { width, height } = e.contentRect;
+      setScale(Math.max(0.45, Math.min(1.05, width / W, (height - 16) / H)));
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -99,8 +102,8 @@ function Scene() {
   const r = 22;
   const c = 2 * Math.PI * r;
   return (
-    <div className="ev-scene-wrap">
-      <div className="ev-scene-box" ref={boxRef} style={{ height: H * scale }}
+    <div className="ev-scene-wrap" ref={wrapRef}>
+      <div className="ev-scene-box" style={{ height: H * scale, width: W * scale }}
         role="img" aria-label="Animated example: resume lines are linked as evidence to Python, Django, PostgreSQL and Docker, giving a score of 86. An unsupported Kubernetes claim is flagged and a fairness check passes.">
         <div className="ev-tilt" style={{ transform: `rotateX(${10 + tilt.x}deg) rotateY(${-18 + tilt.y}deg) rotateZ(2deg)` }}>
           <div className="ev-bob">
@@ -301,8 +304,8 @@ function LoginForm() {
 /* Create account                                                       */
 /* =================================================================== */
 const ROLES = [
-  { id: "recruiter", icon: Briefcase, title: "I'm hiring", text: "Post roles and review evidence-backed shortlists." },
-  { id: "candidate", icon: User, title: "I'm job hunting", text: "Upload a resume and track every application." },
+  { id: "recruiter", icon: Briefcase, title: "I'm hiring", text: "Post roles, review shortlists" },
+  { id: "candidate", icon: User, title: "I'm job hunting", text: "Apply and track progress" },
 ];
 const passwordRules = (pw) => [
   { ok: pw.length >= 8, label: "8+ characters" },
@@ -355,19 +358,18 @@ function RegisterForm() {
     <form className="ev-form" onSubmit={submit} noValidate>
       <div>
         <h2>Create your account</h2>
-        <p className="ev-sub">Choose the side you're on. It shapes everything you'll see.</p>
+        <p className="ev-sub">It takes less than a minute.</p>
       </div>
       {formError && <div className="ev-alert" role="alert"><AlertCircle size={18} style={{ flex: "none" }} />{formError}</div>}
 
       <fieldset className="ev-roles">
-        <legend>I'm here to</legend>
+        <legend className="sr-only">I'm here to</legend>
         {ROLES.map(({ id, icon: Icon, title, text }) => (
           <label key={id} className={`ev-role-opt ${form.role === id ? "checked" : ""}`}>
             <input type="radio" name="role" value={id} checked={form.role === id} onChange={() => setForm({ ...form, role: id })} />
             <span className="tick" aria-hidden="true">{form.role === id && <Check size={12} strokeWidth={3} />}</span>
-            <span className="ri"><Icon size={17} /></span>
-            <strong>{title}</strong>
-            <span className="d">{text}</span>
+            <span className="ri"><Icon size={16} /></span>
+            <span className="rt"><strong>{title}</strong><span className="d">{text}</span></span>
           </label>
         ))}
       </fieldset>
@@ -403,7 +405,6 @@ function RegisterForm() {
           )} />
       </div>
       <SubmitButton loading={loading} idle="Create account" busy="Creating account…" />
-      <p className="ev-fine">Your name and contact details are never used to score applications.</p>
     </form>
   );
 }
