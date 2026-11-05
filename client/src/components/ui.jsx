@@ -261,12 +261,19 @@ export function MiniBreakdown({ breakdown }) {
   );
 }
 
-export function StatusTimeline({ status, history = [] }) {
+export function StatusTimeline({ status, history = [], interviewAt }) {
   const rejected = status === "rejected";
   const reachedIdx = Math.max(...history.map((h) => PIPELINE.indexOf(h.to)), PIPELINE.indexOf(status), 0);
   const dateFor = (s) => history.find((h) => h.to === s)?.at;
+  const stepsRef = useRef(null);
+  useEffect(() => {
+    // On narrow screens the bar scrolls: bring the current step into view.
+    const el = stepsRef.current;
+    const cur = el?.querySelector(".step.current") || el?.querySelector(".step.done:last-of-type");
+    if (el && cur && el.scrollWidth > el.clientWidth) el.scrollLeft = cur.offsetLeft - el.clientWidth / 2 + cur.clientWidth / 2;
+  }, [status]);
   return (
-    <div className="steps" aria-label="Application progress">
+    <div className="steps" aria-label="Application progress" ref={stepsRef}>
       {PIPELINE.map((s, i) => {
         const done = i < reachedIdx || (i === reachedIdx && status === "selected");
         const current = !rejected && i === reachedIdx && status !== "selected";
@@ -274,7 +281,9 @@ export function StatusTimeline({ status, history = [] }) {
           <div key={s} className={`step ${done ? "done" : ""} ${current ? "current" : ""}`}>
             <span className="dot">{done && <Check size={12} />}</span>
             <span>{STATUS[s].label}</span>
-            {dateFor(s) && <span className="small">{formatDate(dateFor(s))}</span>}
+            {s === "interview" && interviewAt
+              ? <span className="small step-iv" title="Interview date">{new Date(interviewAt).toLocaleDateString(undefined, { day: "numeric", month: "short" })}, {new Date(interviewAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+              : dateFor(s) && <span className="small">{formatDate(dateFor(s))}</span>}
           </div>
         );
       })}

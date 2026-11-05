@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     AI_PROVIDER: Literal["gemini", "groq"] = "gemini"
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "openai/gpt-oss-20b"
+    GROQ_FALLBACK_TO_GEMINI: bool = False
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-3.8-flash"
     GEMINI_EMBED_MODEL: str = "gemini-embedding-001"

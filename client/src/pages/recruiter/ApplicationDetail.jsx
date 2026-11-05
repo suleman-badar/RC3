@@ -42,6 +42,7 @@ export default function ApplicationDetail() {
 /* ---------------- Header & status actions ---------------- */
 function Header({ a }) {
   const [pending, setPending] = useState(null);
+  const [scheduling, setScheduling] = useState(false);
   const [note, setNote] = useState("");
   const change = useApiMutation(
     ({ status, note: n }) => api.patch(`/applications/${a.id}/status`, { status, note: n || null }).then((r) => r.data),
@@ -56,8 +57,10 @@ function Header({ a }) {
       </div>
       <div className="row wrap">
         {actions.map((s) => (
-          <Button key={s} variant={s === "rejected" ? "danger" : s === "shortlisted" ? "primary" : "secondary"}
-            onClick={() => setPending(s)}>{ACTION_LABELS[s]}</Button>
+          <Button key={s} variant={s === "rejected" ? "danger" : s === "shortlisted" || s === "interview" ? "primary" : "secondary"}
+            onClick={() => (s === "interview" ? setScheduling(true) : setPending(s))}>
+            {s === "interview" && <CalendarPlus size={16} />}{ACTION_LABELS[s]}
+          </Button>
         ))}
         {a.status === "interview" && !a.job.is_owner && <span className="small muted">Final decision: job owner only</span>}
       </div>
@@ -70,6 +73,8 @@ function Header({ a }) {
         <p className="muted">This is recorded in the audit trail{pending !== "recruiter_review" ? " and the candidate is notified (simulated)" : ""}.</p>
         <Textarea label="Note for the audit trail (optional)" style={{ minHeight: 80 }} value={note} onChange={(e) => setNote(e.target.value)} />
       </Modal>
+      <ScheduleModal a={a} open={scheduling} onClose={() => setScheduling(false)}
+        intro="Moving to the interview stage needs a date and time. The candidate sees it on their dashboard." />
     </div>
   );
 }
@@ -465,13 +470,13 @@ function tomorrow() {
   return d.toISOString().slice(0, 10);
 }
 
-function ScheduleModal({ a, open, onClose }) {
+function ScheduleModal({ a, open, onClose, intro }) {
   const [form, setForm] = useState({ date: tomorrow(), time: "10:00", duration_min: 60, interviewer_name: "", interviewer_email: "", type: "technical", location_or_link: "" });
   const [errors, setErrors] = useState({});
   const [conflicts, setConflicts] = useState(null);
   const schedule = useApiMutation((body) => api.post("/interviews", body).then((r) => r.data), {
     invalidate: appKeys(a.id),
-    success: "Interview scheduled — candidate notified",
+    success: (d) => `Interview set for ${formatDate(d.start, true)}. The candidate has been notified`,
     silentError: true,
     onSuccess: () => { setConflicts(null); onClose(); },
     onError: (err) => {
@@ -503,6 +508,7 @@ function ScheduleModal({ a, open, onClose }) {
         {conflicts ? <Button variant="danger" loading={schedule.isPending} onClick={() => submit(true)}>Schedule anyway</Button>
           : <Button loading={schedule.isPending} onClick={() => submit(false)}>Schedule</Button>}
       </>}>
+      {intro && <p className="small muted">{intro}</p>}
       {errors.form && <div className="alert alert-error">{errors.form}</div>}
       {conflicts && (
         <div className="alert alert-warn" role="alert">

@@ -80,3 +80,27 @@ def test_groq_selection_preserves_gemini_embedding_contract(monkeypatch):
     assert vector[0] == 1.0
     assert embed_call.call_args.kwargs["model"] == settings.GEMINI_EMBED_MODEL
     assert embed_call.call_args.kwargs["config"].output_dimensionality == 768
+
+
+def test_groq_request_sets_output_budget_and_low_reasoning(groq_request):
+    groq_request.return_value = response()
+    real_generate("Return pong", Answer)
+    body = groq_request.call_args.kwargs["json"]
+    assert body["max_completion_tokens"] >= 4096
+    if settings.GROQ_MODEL.startswith("openai/gpt-oss"):
+        assert body["reasoning_effort"] == "low"
+
+
+def test_groq_rate_limit_waits_and_retries(groq_request):
+    limited = httpx.Response(429, headers={"retry-after": "2"}, json={"error": {"message": "TPM"}},
+                             request=httpx.Request("POST", "https://api.groq.com/openai/v1/chat/completions"))
+    groq_request.side_effect = [limited, response()]
+    assert real_generate("Return pong", Answer).answer == "pong"
+    assert groq_request.call_count == 2
+
+
+def test_truncated_output_explains_cause_and_is_not_retried(groq_request):
+    groq_request.return_value = response('{"answer":', "length")
+    with pytest.raises(gemini.AIError, match="cut off"):
+        real_generate("Return pong", Answer)
+    assert groq_request.call_count == 1
