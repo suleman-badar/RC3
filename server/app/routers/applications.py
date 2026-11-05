@@ -56,8 +56,24 @@ def run_assessment(db, app: dict, job: dict, profile: dict) -> dict:
     return app
 
 
-def candidate_view(app: dict, job: dict | None) -> dict:
+def candidate_interview(iv: dict | None) -> dict | None:
+    """Candidate-safe interview details: when, how and where. Never interviewer feedback."""
+    if not iv:
+        return None
+    return {"start": serialize(iv["start"]), "end": serialize(iv["end"]), "duration_min": iv.get("duration_min"),
+            "type": iv.get("type"), "location_or_link": iv.get("location_or_link"), "status": iv.get("status")}
+
+
+def pick_interview(interviews: list[dict]) -> dict | None:
+    """The interview a candidate cares about: the next scheduled one, else the most recent one."""
+    active = sorted((i for i in interviews if i.get("status") != "cancelled"), key=lambda i: i["start"])
+    upcoming = [i for i in active if i.get("status") == "scheduled"]
+    return upcoming[0] if upcoming else (active[-1] if active else None)
+
+
+def candidate_view(app: dict, job: dict | None, interview: dict | None = None) -> dict:
     return {
+        "interview": candidate_interview(interview),
         "id": str(app["_id"]),
         "job": {"id": str(job["_id"]), "title": job["title"], "department": job["department"],
                 "location": job["location"]} if job else None,
@@ -147,14 +163,18 @@ def create_application(db, user: dict, job_id: str) -> dict:
 @router.post("/applications", status_code=201)
 def apply(body: ApplyIn, user: dict = Depends(require_candidate), db=Depends(get_db)):
     app = create_application(db, user, body.job_id)
-    return candidate_view(app, db.jobs.find_one({"_id": app["job_id"]}))
+    return candidate_view(app, db.jobs.find_one({"_id": app["job_id"]}),
+                          pick_interview(list(db.interviews.find({"application_id": app["_id"]}))))
 
 
 @router.get("/applications/mine")
 def my_applications(user: dict = Depends(require_candidate), db=Depends(get_db)):
     apps = list(db.applications.find({"candidate_id": user["_id"]}).sort("submitted_at", -1))
     jobs = {j["_id"]: j for j in db.jobs.find({"_id": {"$in": [a["job_id"] for a in apps]}})}
-    return [candidate_view(a, jobs.get(a["job_id"])) for a in apps]
+    by_app: dict = {}
+    for iv in db.interviews.find({"application_id": {"$in": [a["_id"] for a in apps]}}):
+        by_app.setdefault(iv["application_id"], []).append(iv)
+    return [candidate_view(a, jobs.get(a["job_id"]), pick_interview(by_app.get(a["_id"], []))) for a in apps]
 
 
 # ---------- recruiter ----------
@@ -221,7 +241,8 @@ def get_application(app_id: str, user: dict = Depends(get_current_user), db=Depe
     if user["role"] == "candidate":
         if app["candidate_id"] != user["_id"]:
             raise HTTPException(status_code=404, detail="Application not found")
-        return candidate_view(app, db.jobs.find_one({"_id": app["job_id"]}))
+        return candidate_view(app, db.jobs.find_one({"_id": app["job_id"]}),
+                          pick_interview(list(db.interviews.find({"application_id": app["_id"]}))))
     if app["status"] == "ai_assessed":
         job = db.jobs.find_one({"_id": app["job_id"]})
         try:

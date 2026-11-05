@@ -15,7 +15,7 @@ export const ACTION_LABELS = {
   recruiter_review: "Start review",
   shortlisted: "Shortlist",
   rejected: "Reject",
-  interview: "Move to interview",
+  interview: "Schedule interview",
   selected: "Select",
 };
 
