@@ -7,6 +7,7 @@ import {
 import { api, errorMessage } from "../../api/client";
 import { homeFor, useAuth } from "../../context/AuthContext";
 import "./auth.css";
+import { LogoMark } from "../../components/Logo";
 
 // Demo accounts are only advertised in local development (or when explicitly enabled for a demo build).
 const SHOW_DEMO_ACCOUNTS = import.meta.env.DEV || import.meta.env.VITE_SHOW_DEMO_ACCOUNTS === "true";
@@ -182,7 +183,7 @@ function Stage() {
   return (
     <aside className="ev-stage">
       <span className="ev-glow a" /><span className="ev-glow b" />
-      <Link to="/login" className="ev-brand"><span className="ev-brand-mark">E</span>Evident</Link>
+      <Link to="/login" className="ev-brand"><LogoMark size={36} />Evident</Link>
       <div className="ev-headline">
         <h1>Hire on evidence.</h1>
         <p>Evident matches resumes to roles by meaning, links every score to the exact line behind it, and leaves each hiring decision with a person.</p>

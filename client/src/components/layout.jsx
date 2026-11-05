@@ -6,6 +6,7 @@ import { useNotifications } from "../api/queries";
 import { homeFor, useAuth } from "../context/AuthContext";
 import { formatDate } from "../lib/status";
 import { PageSkeleton } from "./ui";
+import { LogoMark } from "./Logo";
 import { useQueryClient } from "@tanstack/react-query";
 
 const TITLES = [
@@ -115,7 +116,7 @@ export function RecruiterShell() {
       <div className={`drawer-backdrop ${open ? "open" : ""}`} onClick={() => setOpen(false)} />
       <nav className={`sidebar ${open ? "open" : ""}`} aria-label="Main">
         <Link to="/r" className="brand" style={{ textDecoration: "none" }}>
-          <span className="brand-mark">E</span><span className="nav-text">Evident</span>
+          <LogoMark size={32} title="Evident" /><span className="nav-text">Evident</span>
         </Link>
         {links.map(({ to, label, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} title={label}>
@@ -150,7 +151,7 @@ export function CandidateShell() {
       <header className="topbar">
         <div className="row" style={{ gap: 16 }}>
           <Link to="/c" className="row" style={{ textDecoration: "none", color: "var(--ink)", fontWeight: 700 }}>
-            <span className="brand-mark">E</span><span className="hide-mobile">Evident</span>
+            <LogoMark size={30} title="Evident" /><span className="hide-mobile">Evident</span>
           </Link>
           <nav className="topnav" aria-label="Main">
             {links.map(({ to, label, icon: Icon, end }) => (
