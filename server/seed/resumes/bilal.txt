@@ -1,0 +1,26 @@
+Bilal Ahmed
+Software Engineer
+bilal.ahmed@evident.demo | +92 321 4445566 | Islamabad, Pakistan
+
+PROFILE
+Software engineer with 2.5 years of experience writing Py web backends and APIs.
+
+TECHNICAL SKILLS
+Py, DRF, Postgres, Flask, Git, Linux, Nginx
+
+EXPERIENCE
+Software Engineer - Systems Limited, Islamabad (May 2023 - Present)
+- Develop backend endpoints with DRF and Postgres for a fintech dashboard
+- Containerized services with docker-compose for local and staging environments
+
+Junior Developer - NetSol Technologies (Jun 2022 - Apr 2023)
+- Maintained Flask microservices and wrote SQL reports
+
+PROJECTS
+Inventory Microservice
+- A small Py service exposing REST endpoints over a Postgres database, packaged with docker-compose
+Expense Splitter Bot
+- Telegram bot written in Py that splits group expenses
+
+EDUCATION
+BS Software Engineering - COMSATS University Islamabad (2022)

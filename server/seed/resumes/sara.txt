@@ -1,0 +1,27 @@
+Sara Malik
+Full-Stack JavaScript Developer
+sara.malik@evident.demo | +92 333 7778899 | Karachi, Pakistan
+
+SUMMARY
+JavaScript developer with 3 years of experience building Node.js and React applications.
+
+SKILLS
+JavaScript, JS, Node.js, Express, React, MySQL, MongoDB, HTML, CSS, basic Python scripting
+
+EXPERIENCE
+Full-Stack Developer - 10Pearls, Karachi (Oct 2022 - Present)
+- Build Express REST APIs and React dashboards for healthcare clients
+- Maintain MySQL schemas and write migration scripts
+
+Web Developer - Freelance (Nov 2021 - Sep 2022)
+- Delivered small business websites with Node.js and MongoDB
+- Wrote basic Python scripting utilities to clean CSV exports
+
+PROJECTS
+E-commerce REST API - Node.js, Express, MySQL
+- Product catalogue and checkout API with JWT authentication
+Portfolio Builder - React
+- Drag-and-drop personal site generator
+
+EDUCATION
+BS Information Technology - University of Karachi (2021)

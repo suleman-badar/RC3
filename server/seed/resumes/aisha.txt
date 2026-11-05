@@ -1,0 +1,28 @@
+Aisha Khan
+Backend Engineer
+aisha.khan@evident.demo | +92 300 1112233 | Lahore, Pakistan | github.com/aishakhan
+
+SUMMARY
+Backend engineer with 4 years of experience building Python and Django services backed by PostgreSQL and deployed with Docker.
+
+SKILLS
+Python, Django, Django REST Framework, PostgreSQL, Docker, Celery, Redis, REST APIs, Git, Linux
+
+EXPERIENCE
+Senior Backend Developer - Arbisoft, Lahore (Jan 2023 - Present)
+- Designed REST APIs in Django REST Framework serving 200k monthly users
+- Tuned PostgreSQL queries and indexes, cutting p95 latency by 40%
+- Containerized all services with Docker and wrote CI pipelines in GitHub Actions
+
+Backend Developer - Techlogix, Lahore (Nov 2020 - Dec 2022)
+- Built Django services and Celery background jobs for a logistics platform
+- Wrote unit and integration tests with pytest
+
+PROJECTS
+Clinic Booking API - Django, PostgreSQL, Docker
+- Appointment scheduling API with role-based access, deployed with Docker Compose
+Realtime Inventory Tracker - Python, Redis, WebSockets
+- Event-driven stock updates using Redis pub/sub
+
+EDUCATION
+BS Computer Science - FAST NUCES, Lahore (2020)
