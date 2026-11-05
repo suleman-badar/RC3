@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   AlertTriangle, ArrowLeft, CalendarPlus, CircleSlash, Check, Gavel, Lightbulb, MessageSquarePlus, Pencil,
   RefreshCw, Scale, ShieldCheck, Sparkles, Trash2, Undo2,
@@ -41,8 +41,14 @@ export default function ApplicationDetail() {
 
 /* ---------------- Header & status actions ---------------- */
 function Header({ a }) {
+  const [params, setParams] = useSearchParams();
   const [pending, setPending] = useState(null);
-  const [scheduling, setScheduling] = useState(false);
+  const [scheduling, setScheduling] = useState(params.get("schedule") === "1");
+  const closeScheduling = () => {
+    setScheduling(false);
+    if (params.get("schedule")) { params.delete("schedule"); setParams(params, { replace: true }); }
+  };
+  const noDate = a.status === "interview" && !(a.interviews || []).some((iv) => iv.status !== "cancelled");
   const [note, setNote] = useState("");
   const change = useApiMutation(
     ({ status, note: n }) => api.patch(`/applications/${a.id}/status`, { status, note: n || null }).then((r) => r.data),
@@ -73,8 +79,16 @@ function Header({ a }) {
         <p className="muted">This is recorded in the audit trail{pending !== "recruiter_review" ? " and the candidate is notified (simulated)" : ""}.</p>
         <Textarea label="Note for the audit trail (optional)" style={{ minHeight: 80 }} value={note} onChange={(e) => setNote(e.target.value)} />
       </Modal>
-      <ScheduleModal a={a} open={scheduling} onClose={() => setScheduling(false)}
-        intro="Moving to the interview stage needs a date and time. The candidate sees it on their dashboard." />
+      <ScheduleModal a={a} open={scheduling} onClose={closeScheduling}
+        intro={a.status === "interview" ? "Set the interview date and time. The candidate sees it on their dashboard and gets a notification."
+          : "Moving to the interview stage needs a date and time. The candidate sees it on their dashboard."} />
+      {noDate && (
+        <div className="alert alert-warn" role="status" style={{ width: "100%" }}>
+          <AlertTriangle size={18} style={{ flex: "none" }} />
+          <span className="grow">This candidate is in the Interview stage but has no interview date yet.</span>
+          <Button size="sm" onClick={() => setScheduling(true)}><CalendarPlus size={15} /> Set interview date</Button>
+        </div>
+      )}
     </div>
   );
 }
