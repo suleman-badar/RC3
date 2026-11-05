@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { AlertTriangle, Check, CircleSlash, Inbox, RefreshCw, Sparkles, X, HelpCircle } from "lucide-react";
 import { PIPELINE, SKILL_STATES, STATUS, formatDate } from "../lib/status";
 
@@ -309,9 +310,9 @@ export function AuditTimeline({ history = [] }) {
   );
 }
 
-export function StatCard({ label, value, icon: Icon, hint }) {
-  return (
-    <Card className="card-tight">
+export function StatCard({ label, value, icon: Icon, hint, to }) {
+  const card = (
+    <Card className={`card-tight ${to ? "card-hover" : ""}`} style={to ? { height: "100%" } : undefined}>
       <div className="row between" style={{ gap: 8 }}>
         <span className="label">{label}</span>
         {Icon && <Icon size={18} className="muted" style={{ flex: "none" }} />}
@@ -320,6 +321,7 @@ export function StatCard({ label, value, icon: Icon, hint }) {
       {hint && <div className="small muted">{hint}</div>}
     </Card>
   );
+  return to ? <Link to={to} style={{ textDecoration: "none", color: "inherit" }} aria-label={`${label}: ${value}. View`}>{card}</Link> : card;
 }
 
 const IV_STATUS = { scheduled: ["Scheduled", "semantic"], completed: ["Completed", "match"], cancelled: ["Cancelled", "neutral"] };

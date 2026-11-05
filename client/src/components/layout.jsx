@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Briefcase, CalendarClock, FileText, LayoutDashboard, ListChecks, LogOut, Menu, Search } from "lucide-react";
+import { Bell, Briefcase, CalendarClock, FileText, Inbox, LayoutDashboard, ListChecks, LogOut, Menu, Search } from "lucide-react";
 import { api } from "../api/client";
 import { useNotifications } from "../api/queries";
 import { homeFor, useAuth } from "../context/AuthContext";
@@ -10,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const TITLES = [
   [/^\/r\/?$/, "Dashboard"], [/^\/r\/jobs\/new$/, "Post a job"], [/^\/r\/jobs\/[^/]+\/edit$/, "Edit job"],
-  [/^\/r\/jobs\/[^/]+$/, "Applicants"], [/^\/r\/jobs/, "Jobs"], [/^\/r\/applications/, "Candidate review"],
+  [/^\/r\/jobs\/[^/]+$/, "Applicants"], [/^\/r\/jobs/, "Jobs"], [/^\/r\/applications\/?$/, "Applications"], [/^\/r\/applications/, "Candidate review"],
   [/^\/r\/interviews/, "Interviews"], [/^\/r\/search/, "Talent search"], [/^\/r\/compare/, "Compare candidates"],
   [/^\/c\/?$/, "My applications"], [/^\/c\/jobs/, "Jobs"], [/^\/c\/profile/, "Profile & resume"],
 ];
@@ -106,6 +106,7 @@ export function RecruiterShell() {
   const links = [
     { to: "/r", label: "Dashboard", icon: LayoutDashboard, end: true },
     { to: "/r/jobs", label: "Jobs", icon: Briefcase },
+    { to: "/r/applications", label: "Applications", icon: Inbox },
     { to: "/r/interviews", label: "Interviews", icon: CalendarClock },
     { to: "/r/search", label: "Talent search", icon: Search },
   ];
