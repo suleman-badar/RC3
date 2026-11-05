@@ -34,7 +34,7 @@ export default function TalentSearch() {
             <input className="input" style={{ height: 44, fontSize: 15 }} placeholder="e.g. Python developers with REST API experience"
               value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search query" aria-invalid={!!error} />
           </div>
-          <select className="select" style={{ width: 220, height: 44 }} value={jobId} onChange={(e) => setJobId(e.target.value)} aria-label="Scope">
+          <select className="select" style={{ flex: "0 1 220px", minWidth: 160, height: 44 }} value={jobId} onChange={(e) => setJobId(e.target.value)} aria-label="Scope">
             <option value="">All applicants</option>
             {(jobs.data || []).map((j) => <option key={j.id} value={j.id}>Applicants for {j.title}</option>)}
           </select>
@@ -56,12 +56,12 @@ export default function TalentSearch() {
               <span className="small muted">Applied to: {r.applications.map((a) => a.job_title).join(", ")}</span>
             </div>
             <div className="row">
-              <span className="badge badge-semantic num">Relevance {Math.round(r.relevance * 100)}%</span>
+              <span className="badge badge-semantic num" title="Best semantic similarity between your query and this resume">Match {Math.round(r.relevance * 100)}%</span>
               {r.applications[0] && <Link className="btn btn-secondary btn-sm" to={`/r/applications/${r.applications[0].id}`}>View application</Link>}
             </div>
           </div>
           <div className="grid grid-3">
-            {r.evidence.map((e, i) => (
+            {r.evidence.filter((e, i, all) => all.findIndex((x) => x.text === e.text) === i).map((e, i) => (
               <div key={i} className="stack" style={{ gap: 4 }}>
                 <EvidenceQuote text={e.text} source={e.kind} />
                 <span className="small muted num">similarity {e.similarity.toFixed(2)}</span>

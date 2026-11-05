@@ -237,9 +237,9 @@ export function ScoreBreakdown({ breakdown }) {
     <div className="stack">
       {Object.entries(breakdown).map(([k, v]) => (
         <div key={k} className="stack" style={{ gap: 4 }}>
-          <div className="row between">
-            <span style={{ fontWeight: 500 }}>{PART_LABEL[k]} <span className="muted small">· weight {Math.round(v.weight * 100)}%</span></span>
-            <span className="num"><strong>{v.score}</strong><span className="muted">/100 → {v.weighted.toFixed(1)} pts</span></span>
+          <div className="score-row">
+            <span style={{ fontWeight: 500 }}>{PART_LABEL[k]} <span className="muted small" style={{ whiteSpace: "nowrap" }}>· {Math.round(v.weight * 100)}%</span></span>
+            <span className="num val"><strong>{v.score}</strong><span className="muted">/100 · {v.weighted.toFixed(1)} pts</span></span>
           </div>
           <div className="bar"><span style={{ width: `${v.score}%`, background: PART_COLOR[k] }} /></div>
           <span className="small muted">{v.explanation}</span>
@@ -312,12 +312,39 @@ export function AuditTimeline({ history = [] }) {
 export function StatCard({ label, value, icon: Icon, hint }) {
   return (
     <Card className="card-tight">
-      <div className="row between">
+      <div className="row between" style={{ gap: 8 }}>
         <span className="label">{label}</span>
-        {Icon && <Icon size={18} className="muted" />}
+        {Icon && <Icon size={18} className="muted" style={{ flex: "none" }} />}
       </div>
       <div className="num" style={{ fontSize: 28, fontWeight: 600, lineHeight: "36px", marginTop: 6 }}>{value}</div>
       {hint && <div className="small muted">{hint}</div>}
     </Card>
   );
+}
+
+const IV_STATUS = { scheduled: ["Scheduled", "semantic"], completed: ["Completed", "match"], cancelled: ["Cancelled", "neutral"] };
+
+export function InterviewStatusBadge({ status }) {
+  const [label, tone] = IV_STATUS[status] || [status, "neutral"];
+  return <span className={`badge badge-${tone}`}>{label}</span>;
+}
+
+/** Props that make a non-button element behave like a link for mouse and keyboard users. */
+export function clickableProps(onActivate, label) {
+  return {
+    role: "link",
+    tabIndex: 0,
+    "aria-label": label,
+    onClick: onActivate,
+    onKeyDown: (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onActivate(e); }
+    },
+  };
+}
+
+export function formatHours(h) {
+  if (h == null) return "—";
+  if (h < 1) return `${Math.max(1, Math.round(h * 60))} min`;
+  if (h < 48) return `${Math.round(h * 10) / 10} h`;
+  return `${Math.round((h / 24) * 10) / 10} days`;
 }
