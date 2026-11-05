@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from disposable_email_domains import blocklist
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pymongo.errors import DuplicateKeyError
 
@@ -17,6 +18,13 @@ def public_user(u: dict) -> dict:
 
 @router.post("/register", status_code=201)
 def register(body: RegisterIn, db=Depends(get_db)):
+    domain = body.email.rsplit("@", 1)[1].lower()
+    labels = domain.split(".")
+    if any(".".join(labels[i:]) in blocklist for i in range(len(labels))):
+        raise HTTPException(
+            status_code=400,
+            detail="Disposable email addresses are not allowed. Please use a permanent email.",
+        )
     doc = {
         "name": body.name.strip(),
         "email": body.email.lower(),
