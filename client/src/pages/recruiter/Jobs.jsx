@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Briefcase, Pencil, Plus } from "lucide-react";
 import { api } from "../../api/client";
 import { useApiMutation, useJobs } from "../../api/queries";
@@ -7,7 +7,8 @@ import { Button, Card, EmptyState, ErrorState, Modal, Skeleton, clickableProps }
 import { formatDate } from "../../lib/status";
 
 export default function RecruiterJobs() {
-  const [filter, setFilter] = useState("all");
+  const [params] = useSearchParams();
+  const [filter, setFilter] = useState(["open", "closed"].includes(params.get("status")) ? params.get("status") : "all");
   const jobs = useJobs(filter);
   const navigate = useNavigate();
   const [confirm, setConfirm] = useState(null);

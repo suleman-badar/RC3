@@ -43,12 +43,12 @@ export default function RecruiterDashboard() {
       ) : (
         <>
           <div className="kpi-grid">
-            <StatCard label="Active jobs" value={kpis.active_jobs} icon={Briefcase} hint="open vacancies" />
-            <StatCard label="Applications" value={kpis.applications} icon={FileStack} hint="all time" />
-            <StatCard label="Pending review" value={kpis.pending_reviews} icon={ClipboardCheck} hint="awaiting a recruiter" />
-            <StatCard label="Shortlisted" value={kpis.shortlisted} icon={UserCheck}
+            <StatCard label="Active jobs" value={kpis.active_jobs} icon={Briefcase} hint="open vacancies" to="/r/jobs?status=open" />
+            <StatCard label="Applications" value={kpis.applications} icon={FileStack} hint="all time" to="/r/applications?tab=all" />
+            <StatCard label="Pending review" value={kpis.pending_reviews} icon={ClipboardCheck} hint="awaiting a recruiter" to="/r/applications" />
+            <StatCard label="Shortlisted" value={kpis.shortlisted} icon={UserCheck} to="/r/applications?tab=shortlisted"
               hint={`${Math.round(kpis.shortlist_rate * 100)}% shortlist rate`} />
-            <StatCard label="Interviews" value={kpis.interviews} icon={CalendarClock} hint="upcoming" />
+            <StatCard label="Interviews" value={kpis.interviews} icon={CalendarClock} hint="upcoming" to="/r/interviews" />
             <StatCard label="Avg processing" value={formatHours(kpis.avg_processing_hours)} icon={Clock} hint="to first decision" />
           </div>
 

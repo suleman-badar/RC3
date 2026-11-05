@@ -11,6 +11,7 @@ import RecruiterJobs from "./pages/recruiter/Jobs";
 import JobForm from "./pages/recruiter/JobForm";
 import JobApplicants from "./pages/recruiter/JobApplicants";
 import ApplicationDetail from "./pages/recruiter/ApplicationDetail";
+import Applications from "./pages/recruiter/Applications";
 import Interviews from "./pages/recruiter/Interviews";
 import TalentSearch from "./pages/recruiter/TalentSearch";
 import Compare from "./pages/recruiter/Compare";
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="jobs/new" element={<JobForm />} />
           <Route path="jobs/:id/edit" element={<JobForm />} />
           <Route path="jobs/:id" element={<JobApplicants />} />
+          <Route path="applications" element={<Applications />} />
           <Route path="applications/:id" element={<ApplicationDetail />} />
           <Route path="interviews" element={<Interviews />} />
           <Route path="search" element={<TalentSearch />} />
