@@ -17,7 +17,7 @@ export default function Compare() {
   if (q.isLoading) return <PageSkeleton />;
   if (q.isError) return <div className="page"><ErrorState message={errorMessage(q.error)} onRetry={q.refetch} /></div>;
   const { job, skills, candidates } = q.data;
-  const cols = { gridTemplateColumns: `repeat(${candidates.length}, minmax(240px, 1fr))` };
+  const cols = { gridTemplateColumns: `repeat(${candidates.length}, minmax(260px, 1fr))` };
 
   return (
     <div className="page">
@@ -29,7 +29,7 @@ export default function Compare() {
         </div>
         <SkillLegend />
       </div>
-      <div style={{ overflowX: "auto" }}>
+      <div className="h-scroll">
         <div className="grid" style={cols}>
           {candidates.map((c) => (
             <Card key={c.id} className="stack">

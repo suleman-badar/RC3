@@ -168,7 +168,7 @@ export default function CandidateProfile() {
                   {s.name}
                   {s.raw && s.raw.toLowerCase() !== s.name.toLowerCase() && <span className="small muted">({s.raw})</span>}
                   {s.verified === false && <VerifiedMark verified={false} />}
-                  <button className="btn btn-ghost" style={{ height: 18, width: 18, padding: 0 }} aria-label={`Remove ${s.name}`} onClick={() => removeItem("skills", i)}><X size={12} /></button>
+                  <button type="button" className="chip-x" aria-label={`Remove ${s.name}`} onClick={() => removeItem("skills", i)}><X size={12} /></button>
                 </span>
               ))}
               {draft.skills.length === 0 && <span className="muted small">No skills yet.</span>}

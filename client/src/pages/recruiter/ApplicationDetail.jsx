@@ -7,7 +7,7 @@ import {
 import { api, errorMessage } from "../../api/client";
 import { appKeys, useApiMutation, useApplication } from "../../api/queries";
 import {
-  AuditTimeline, Button, Card, EmptyState, ErrorState, EvidenceQuote, Input, Modal, PageSkeleton, ScoreBreakdown,
+  AuditTimeline, Button, Card, EmptyState, ErrorState, EvidenceQuote, Input, InterviewStatusBadge, Modal, PageSkeleton, ScoreBreakdown,
   ScoreRing, Select, SkillChip, SkillLegend, StatusBadge, Tabs, Textarea, VerifiedMark,
 } from "../../components/ui";
 import { ACTION_LABELS, INTERVIEW_TYPES, RECOMMENDATIONS, SKILL_STATES, formatDate } from "../../lib/status";
@@ -379,7 +379,7 @@ function InterviewTab({ a }) {
               </div>
               <div className="row">
                 {iv.conflict_overridden && <span className="badge badge-missing"><AlertTriangle size={11} /> Scheduled despite conflict</span>}
-                <span className={`badge ${iv.status === "completed" ? "badge-match" : iv.status === "cancelled" ? "badge-neutral" : "badge-semantic"}`}>{iv.status}</span>
+                <InterviewStatusBadge status={iv.status} />
                 {iv.status !== "cancelled" && <Button variant="secondary" size="sm" onClick={() => setFeedbackFor(iv)}>{iv.feedback ? "Edit feedback" : "Add feedback"}</Button>}
               </div>
             </div>

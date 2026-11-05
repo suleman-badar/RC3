@@ -8,6 +8,21 @@ import { formatDate } from "../lib/status";
 import { PageSkeleton } from "./ui";
 import { useQueryClient } from "@tanstack/react-query";
 
+const TITLES = [
+  [/^\/r\/?$/, "Dashboard"], [/^\/r\/jobs\/new$/, "Post a job"], [/^\/r\/jobs\/[^/]+\/edit$/, "Edit job"],
+  [/^\/r\/jobs\/[^/]+$/, "Applicants"], [/^\/r\/jobs/, "Jobs"], [/^\/r\/applications/, "Candidate review"],
+  [/^\/r\/interviews/, "Interviews"], [/^\/r\/search/, "Talent search"], [/^\/r\/compare/, "Compare candidates"],
+  [/^\/c\/?$/, "My applications"], [/^\/c\/jobs/, "Jobs"], [/^\/c\/profile/, "Profile & resume"],
+];
+export const titleFor = (path) => TITLES.find(([re]) => re.test(path))?.[1] || "Evident";
+
+function usePageTitle() {
+  const { pathname } = useLocation();
+  const title = titleFor(pathname);
+  useEffect(() => { document.title = `${title} · Evident`; }, [title]);
+  return title;
+}
+
 export function ProtectedRoute({ role }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -86,6 +101,7 @@ function UserMenu() {
 export function RecruiterShell() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const title = usePageTitle();
   useEffect(() => setOpen(false), [location.pathname]);
   const links = [
     { to: "/r", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -109,7 +125,10 @@ export function RecruiterShell() {
       <div className="main">
         <header className="topbar">
           <button className="btn btn-ghost btn-icon menu-btn" aria-label="Open menu" onClick={() => setOpen(true)}><Menu size={20} /></button>
-          <span className="small muted hide-mobile">Recruiter workspace · AI assists, you decide</span>
+          <div className="row grow" style={{ gap: 10, minWidth: 0 }}>
+            <span className="topbar-title">{title}</span>
+            <span className="small muted hide-mobile hide-tablet">· AI assists, you decide</span>
+          </div>
           <UserMenu />
         </header>
         <Outlet />
@@ -119,6 +138,7 @@ export function RecruiterShell() {
 }
 
 export function CandidateShell() {
+  usePageTitle();
   const links = [
     { to: "/c", label: "My applications", icon: ListChecks, end: true },
     { to: "/c/jobs", label: "Jobs", icon: Briefcase },

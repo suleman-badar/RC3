@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Briefcase, Pencil, Plus } from "lucide-react";
 import { api } from "../../api/client";
 import { useApiMutation, useJobs } from "../../api/queries";
-import { Button, Card, EmptyState, ErrorState, Modal, Skeleton } from "../../components/ui";
+import { Button, Card, EmptyState, ErrorState, Modal, Skeleton, clickableProps } from "../../components/ui";
 import { formatDate } from "../../lib/status";
 
 export default function RecruiterJobs() {
@@ -41,18 +41,18 @@ export default function RecruiterJobs() {
       )}
       {jobs.data?.length > 0 && (
         <Card style={{ padding: 0 }}>
-          <div className="table-wrap">
+          <div className="table-wrap hide-mobile-table">
             <table className="table">
               <thead><tr><th>Title</th><th className="hide-mobile">Department</th><th>Status</th><th>Applicants</th><th className="hide-mobile">Created</th><th aria-label="Actions" /></tr></thead>
               <tbody>
                 {jobs.data.map((j) => (
-                  <tr key={j.id} className="clickable" onClick={() => navigate(`/r/jobs/${j.id}`)}>
+                  <tr key={j.id} className="clickable" {...clickableProps(() => navigate(`/r/jobs/${j.id}`))}>
                     <td><strong>{j.title}</strong><div className="small muted">{j.location}</div></td>
                     <td className="hide-mobile">{j.department}</td>
                     <td><span className={`badge ${j.status === "open" ? "badge-match" : "badge-neutral"}`}>{j.status === "open" ? "Open" : "Closed"}</span></td>
                     <td className="num"><strong>{j.applicant_count}</strong></td>
                     <td className="hide-mobile small muted">{formatDate(j.created_at)}</td>
-                    <td onClick={(e) => e.stopPropagation()}>
+                    <td onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                       {j.is_owner && (
                         <div className="row" style={{ justifyContent: "flex-end" }}>
                           <Link className="btn btn-ghost btn-sm" to={`/r/jobs/${j.id}/edit`} aria-label={`Edit ${j.title}`}><Pencil size={14} /> <span className="hide-mobile">Edit</span></Link>
@@ -64,6 +64,28 @@ export default function RecruiterJobs() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="only-mobile">
+            {jobs.data.map((j) => (
+              <div key={j.id} className="list-card" {...clickableProps(() => navigate(`/r/jobs/${j.id}`))}>
+                <div className="row between" style={{ alignItems: "flex-start" }}>
+                  <div className="stack grow" style={{ gap: 2 }}>
+                    <strong>{j.title}</strong>
+                    <span className="small muted">{j.department} · {j.location}</span>
+                  </div>
+                  <span className={`badge ${j.status === "open" ? "badge-match" : "badge-neutral"}`}>{j.status === "open" ? "Open" : "Closed"}</span>
+                </div>
+                <div className="row between">
+                  <span className="small"><strong className="num">{j.applicant_count}</strong> applicant{j.applicant_count === 1 ? "" : "s"} · {formatDate(j.created_at)}</span>
+                  {j.is_owner && (
+                    <div className="row" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                      <Link className="btn btn-ghost btn-sm" to={`/r/jobs/${j.id}/edit`} aria-label={`Edit ${j.title}`}><Pencil size={14} /></Link>
+                      <Button variant="secondary" size="sm" onClick={() => setConfirm(j)}>{j.status === "open" ? "Close" : "Reopen"}</Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       )}

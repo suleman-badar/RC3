@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Check, HelpCircle, Sparkles } from "lucide-react";
 import { api, errorMessage } from "../../api/client";
@@ -9,9 +9,9 @@ function BrandPanel() {
   return (
     <aside className="auth-brand">
       <div className="brand" style={{ padding: 0 }}><span className="brand-mark">E</span>Evident</div>
-      <div className="stack-lg">
+      <div className="stack-lg" style={{ gap: 16 }}>
         <h1>Hiring decisions you can trace.</h1>
-        <p style={{ maxWidth: 440 }}>
+        <p className="auth-tagline">
           Semantic matching that shows its receipts. Every score links back to the resume line that earned it, and
           every decision stays with a human.
         </p>
@@ -32,6 +32,9 @@ function BrandPanel() {
   );
 }
 
+// Demo accounts are only advertised in local development (or when explicitly enabled for a demo build).
+const SHOW_DEMO_ACCOUNTS = import.meta.env.DEV || import.meta.env.VITE_SHOW_DEMO_ACCOUNTS === "true";
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function Login() {
@@ -39,6 +42,7 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
+  useEffect(() => { document.title = "Log in · Evident"; }, []);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,10 +85,12 @@ export function Login() {
             onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <Button type="submit" loading={loading}>Log in</Button>
           <p className="muted">No account? <Link to="/register">Create one</Link></p>
-          <details className="small muted">
-            <summary style={{ cursor: "pointer" }}>Demo accounts</summary>
-            <p style={{ marginTop: 6 }}>recruiter@evident.demo · aisha@ / bilal@ / sara@evident.demo — password Demo@12345</p>
-          </details>
+          {SHOW_DEMO_ACCOUNTS && (
+            <details className="small muted">
+              <summary style={{ cursor: "pointer" }}>Demo accounts (local only)</summary>
+              <p style={{ marginTop: 6 }}>recruiter@evident.demo · aisha@ / bilal@ / sara@evident.demo — password Demo@12345</p>
+            </details>
+          )}
         </form>
       </main>
     </div>
@@ -95,6 +101,7 @@ export function Register() {
   const { user, signIn } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "candidate" });
+  useEffect(() => { document.title = "Create account · Evident"; }, []);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);

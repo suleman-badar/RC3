@@ -22,9 +22,9 @@ function SkillRows({ label, rows, onChange, highlight, defaultImportance }) {
       </div>
       {rows.length === 0 && <span className="small muted">None.</span>}
       {rows.map((r, i) => (
-        <div key={i} className="row" style={{ background: highlight ? "var(--evidence)" : "transparent", borderRadius: 8, transition: "background 600ms" }}>
-          <input className="input grow" placeholder="Skill" value={r.name} aria-label={`${label} ${i + 1}`} onChange={(e) => set(i, "name", e.target.value)} />
-          <select className="select" style={{ width: 150 }} value={r.importance} aria-label="Importance" onChange={(e) => set(i, "importance", e.target.value)}>
+        <div key={i} className="skill-row" style={{ background: highlight ? "var(--evidence)" : "transparent" }}>
+          <input className="input" placeholder="Skill" value={r.name} aria-label={`${label} ${i + 1}`} onChange={(e) => set(i, "name", e.target.value)} />
+          <select className="select" value={r.importance} aria-label="Importance" onChange={(e) => set(i, "importance", e.target.value)}>
             {Object.entries(IMPORTANCE).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
           <button type="button" className="btn btn-ghost btn-icon" aria-label="Remove skill" onClick={() => onChange(rows.filter((_, idx) => idx !== i))}><Trash2 size={15} /></button>

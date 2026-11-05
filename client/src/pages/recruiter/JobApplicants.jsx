@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, Columns3, Pencil, Users } from "lucide-react";
 import { useApplicants, useJob } from "../../api/queries";
-import { Button, Card, EmptyState, ErrorState, MiniBreakdown, PageSkeleton, ScoreRing, SkillChip, SkillLegend, StatusBadge } from "../../components/ui";
+import { Button, Card, EmptyState, ErrorState, MiniBreakdown, PageSkeleton, ScoreRing, SkillChip, SkillLegend, StatusBadge, clickableProps } from "../../components/ui";
 import { IMPORTANCE, JOB_TYPES, STATUS, formatDate, formatSalary } from "../../lib/status";
 
 export default function JobApplicants() {
@@ -50,26 +50,27 @@ export default function JobApplicants() {
       </div>
 
       <Card className="stack">
-        <div className="row wrap" style={{ gap: 12 }}>
-          <select className="select" style={{ width: 200 }} value={filters.status} aria-label="Filter by status" onChange={(e) => setFilter("status", e.target.value)}>
+        <div className="filter-bar">
+          <select className="select" value={filters.status} aria-label="Filter by status" onChange={(e) => setFilter("status", e.target.value)}>
             <option value="">All statuses</option>
             {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
-          <select className="select" style={{ width: 200 }} value={filters.skill} aria-label="Must have skill" onChange={(e) => setFilter("skill", e.target.value)}>
+          <select className="select" value={filters.skill} aria-label="Must have skill" onChange={(e) => setFilter("skill", e.target.value)}>
             <option value="">Any skill</option>
             {allSkills.map((s) => <option key={s.name} value={s.name}>Has evidence: {s.name}</option>)}
           </select>
-          <label className="row small" style={{ minWidth: 220 }}>
-            Min score <input type="range" min={0} max={100} step={5} value={filters.min_score || 0} aria-label="Minimum score"
-              onChange={(e) => setFilter("min_score", e.target.value === "0" ? "" : e.target.value)} />
-            <span className="num" style={{ width: 24 }}>{filters.min_score || 0}</span>
-          </label>
-          <select className="select" style={{ width: 160 }} value={filters.sort} aria-label="Sort" onChange={(e) => setFilter("sort", e.target.value === "score" ? "" : e.target.value)}>
+          <select className="select" value={filters.sort} aria-label="Sort" onChange={(e) => setFilter("sort", e.target.value === "score" ? "" : e.target.value)}>
             <option value="score">Sort: score</option>
             <option value="date">Sort: newest</option>
           </select>
-          <div className="grow" />
-          <Button variant="secondary" disabled={selected.length < 2} onClick={() => navigate(`/r/compare?ids=${selected.join(",")}`)}>
+          <label className="row small" style={{ flex: "1 1 200px" }}>
+            <span style={{ whiteSpace: "nowrap" }}>Min score</span>
+            <input type="range" min={0} max={100} step={5} value={filters.min_score || 0} aria-label="Minimum score" style={{ flex: 1, minWidth: 80 }}
+              onChange={(e) => setFilter("min_score", e.target.value === "0" ? "" : e.target.value)} />
+            <span className="num" style={{ width: 24, textAlign: "right" }}>{filters.min_score || 0}</span>
+          </label>
+          <Button variant="secondary" disabled={selected.length < 2} onClick={() => navigate(`/r/compare?ids=${selected.join(",")}`)}
+            title={selected.length < 2 ? "Select 2–3 applicants to compare" : ""}>
             <Columns3 size={16} /> Compare ({selected.length})
           </Button>
         </div>
@@ -84,19 +85,19 @@ export default function JobApplicants() {
       )}
       {apps.data?.length > 0 && (
         <Card style={{ padding: 0 }}>
-          <div className="table-wrap">
+          <div className="table-wrap hide-mobile-table">
             <table className="table">
               <thead>
                 <tr>
                   <th aria-label="Select for comparison" />
-                  <th>#</th><th>Candidate</th><th>Score</th><th className="hide-mobile">Breakdown</th>
-                  <th className="hide-mobile">Skill evidence</th><th>Status</th>
+                  <th>#</th><th>Candidate</th><th>Score</th><th className="hide-tablet">Breakdown</th>
+                  <th>Skill evidence</th><th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {apps.data.map((a) => (
-                  <tr key={a.id} className="clickable" onClick={() => navigate(`/r/applications/${a.id}`)}>
-                    <td onClick={(e) => e.stopPropagation()}>
+                  <tr key={a.id} className="clickable" {...clickableProps(() => navigate(`/r/applications/${a.id}`))}>
+                    <td onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                       <input type="checkbox" checked={selected.includes(a.id)} onChange={() => toggle(a.id)} aria-label={`Select ${a.candidate.name} for comparison`} />
                     </td>
                     <td className="num muted">{a.rank}</td>
@@ -112,9 +113,9 @@ export default function JobApplicants() {
                         {a.assessment_status === "failed" && <span className="badge badge-absent">AI failed</span>}
                       </div>
                     </td>
-                    <td className="hide-mobile"><MiniBreakdown breakdown={a.breakdown} /></td>
-                    <td className="hide-mobile">
-                      <div className="row wrap" style={{ maxWidth: 380 }}>
+                    <td className="hide-tablet"><MiniBreakdown breakdown={a.breakdown} /></td>
+                    <td style={{ minWidth: 200 }}>
+                      <div className="row wrap" style={{ maxWidth: 380, gap: 6 }}>
                         {a.skills.map((s) => <SkillChip key={s.skill} name={s.skill} state={s.state} required={s.required} />)}
                       </div>
                     </td>
@@ -123,6 +124,31 @@ export default function JobApplicants() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="only-mobile">
+            {apps.data.map((a) => (
+              <div key={a.id} className="list-card" {...clickableProps(() => navigate(`/r/applications/${a.id}`))}>
+                <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
+                  <input type="checkbox" checked={selected.includes(a.id)} aria-label={`Select ${a.candidate.name} for comparison`}
+                    onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} onChange={() => toggle(a.id)} style={{ marginTop: 14 }} />
+                  <ScoreRing value={a.effective_score} size={46} stroke={5} />
+                  <div className="stack grow" style={{ gap: 4 }}>
+                    <div className="row between" style={{ alignItems: "flex-start" }}>
+                      <strong>#{a.rank} {a.candidate.name}</strong>
+                      <StatusBadge status={a.status} />
+                    </div>
+                    <div className="row wrap" style={{ gap: 6 }}>
+                      {a.overridden && <span className="badge badge-primary">Overridden</span>}
+                      {a.unverified_count > 0 && <span className="badge badge-absent"><AlertTriangle size={11} /> {a.unverified_count} unverified</span>}
+                      {a.assessment_status === "failed" && <span className="badge badge-absent">AI failed</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="row wrap" style={{ gap: 6 }}>
+                  {a.skills.map((s) => <SkillChip key={s.skill} name={s.skill} state={s.state} required={s.required} />)}
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       )}
