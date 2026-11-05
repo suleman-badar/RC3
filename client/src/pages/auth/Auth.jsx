@@ -431,10 +431,6 @@ function AuthPage() {
           </nav>
           {isRegister ? <RegisterForm key="r" /> : <LoginForm key="l" />}
         </div>
-        <div className="ev-below">
-          <span><ShieldCheck size={14} /> Passwords are hashed with bcrypt</span>
-          <span><Scale size={14} /> AI advises, people decide</span>
-        </div>
       </main>
     </div>
   );
