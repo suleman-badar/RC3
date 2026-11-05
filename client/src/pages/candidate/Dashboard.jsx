@@ -4,6 +4,7 @@ import { useMyApplications, useProfile } from "../../api/queries";
 import { Card, EmptyState, ErrorState, Skeleton, StatusBadge, StatusTimeline } from "../../components/ui";
 import { formatDate } from "../../lib/status";
 import { useAuth } from "../../context/AuthContext";
+import InterviewPanel from "../../components/InterviewPanel";
 
 export default function CandidateDashboard() {
   const { user } = useAuth();
@@ -45,7 +46,8 @@ export default function CandidateDashboard() {
               </div>
               <StatusBadge status={a.status} />
             </div>
-            <StatusTimeline status={a.status} history={a.status_history} />
+            {a.interview && <InterviewPanel interview={a.interview} jobTitle={a.job?.title} />}
+            <StatusTimeline status={a.status} history={a.status_history} interviewAt={a.interview?.start} />
           </Card>
         ))}
       </section>
