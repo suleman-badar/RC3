@@ -341,7 +341,7 @@ function InterviewTab({ a }) {
         <div className="row between wrap">
           <div className="stack" style={{ gap: 2 }}>
             <h2>Interview questions</h2>
-            <span className="small muted">Role-specific and project-specific, with answer guidelines.</span>
+            <span className="small muted">Role-specific and project-specific, with answer guidelines. Visible to recruiters only; candidates never see them.</span>
           </div>
           <Button variant={a.questions?.length ? "secondary" : "primary"} loading={gen.isPending && !regenId} onClick={() => gen.mutate({})}>
             <Sparkles size={16} /> {a.questions?.length ? "Regenerate all" : "Generate questions"}
