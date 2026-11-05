@@ -37,10 +37,10 @@ def _get_client():
     return _client
 
 
-def _retry(fn, what: str):
+def _retry(fn, what: str, attempts: int = 3):
     delay = 1.0
     last = None
-    for attempt in range(3):
+    for attempt in range(attempts):
         try:
             return fn()
         except AIError:
@@ -51,10 +51,18 @@ def _retry(fn, what: str):
             log.warning("AI %s failed (attempt %s, HTTP %s, %s)", what, attempt + 1, code, type(exc).__name__)
             if isinstance(code, int) and 400 <= code < 500 and code != 429:
                 break
-            if attempt < 2:
+            if attempt < attempts - 1:
                 time.sleep(delay)
                 delay *= 2
-    raise AIError(f"AI service unavailable ({what}). Check provider access, model, quota, and network.") from last
+    status = getattr(getattr(last, "response", None), "status_code", None)
+    hints = {400: "invalid request or model parameters", 401: "authentication failed, check the API key",
+             403: "access denied for this key", 404: "model not available for this key",
+             413: "request too large for the model", 429: "rate limit or quota reached, wait a minute and retry"}
+    if isinstance(status, int):  # summarise HTTP errors; never surface raw provider text or keys
+        detail = f"HTTP {status}, {hints.get(status, 'provider error')}"
+    else:
+        detail = str(last)[:220] if last else "unknown error"
+    raise AIError(f"AI service unavailable ({what}): {detail}") from last
 
 
 def generate_json(prompt: str, schema: type[T], temperature: float = 0.2) -> T:
@@ -63,7 +71,22 @@ def generate_json(prompt: str, schema: type[T], temperature: float = 0.2) -> T:
             raise AIError("GROQ_API_KEY is not configured on the server")
         from . import groq
 
-        return _retry(lambda: groq.generate_json(prompt, schema, temperature), "Groq generation")
+        try:
+            return _retry(lambda: groq.generate_json(prompt, schema, temperature), "Groq generation", attempts=2)
+        except AIError as groq_error:
+            # Opt-in only (GROQ_FALLBACK_TO_GEMINI=true): by default Groq mode never calls Gemini for generation.
+            if not settings.GROQ_FALLBACK_TO_GEMINI or not settings.GEMINI_API_KEY.strip() \
+                    or settings.GEMINI_API_KEY.startswith("your-"):
+                raise
+            log.warning("Groq failed (%s); falling back to Gemini generation", groq_error)
+            try:
+                return _gemini_generate(prompt, schema, temperature)
+            except AIError as gemini_error:
+                raise AIError(f"{groq_error} | Gemini fallback also failed: {gemini_error}") from gemini_error
+    return _gemini_generate(prompt, schema, temperature)
+
+
+def _gemini_generate(prompt: str, schema: type[T], temperature: float) -> T:
 
     from google.genai import types
 
