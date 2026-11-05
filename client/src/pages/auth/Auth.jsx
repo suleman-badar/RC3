@@ -102,9 +102,9 @@ function Scene() {
     <div className="ev-scene-wrap">
       <div className="ev-scene-box" ref={boxRef} style={{ height: H * scale }}
         role="img" aria-label="Animated example: resume lines are linked as evidence to Python, Django, PostgreSQL and Docker, giving a score of 86. An unsupported Kubernetes claim is flagged and a fairness check passes.">
-        <div style={{ width: "100%", height: "100%", transformStyle: "preserve-3d", transformOrigin: "50% 50%",
-          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`, transition: "transform 300ms ease-out" }}>
-          <div className="ev-scene" style={{ transform: `scale(${scale})` }} aria-hidden="true">
+        <div className="ev-tilt" style={{ transform: `rotateX(${10 + tilt.x}deg) rotateY(${-18 + tilt.y}deg) rotateZ(2deg)` }}>
+          <div className="ev-bob">
+          <div className="ev-scene" style={{ transform: `scale(${scale * 0.92})` }} aria-hidden="true">
             <div className="ev-sheet">
               <div className="ev-sheet-head"><span>Resume</span><span>bilal_ahmed.pdf</span></div>
               <div className="ev-sheet-name">Bilal Ahmed</div>
@@ -167,6 +167,7 @@ function Scene() {
               <span className="ic"><ShieldCheck size={15} /></span>
               <div><strong>Fairness check passed</strong><small>Changed name, gender, age: Δ 0</small></div>
             </div>
+          </div>
           </div>
         </div>
       </div>
