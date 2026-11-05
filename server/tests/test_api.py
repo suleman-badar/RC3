@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from app.db import get_db
 from app.services.chunks import embed_chunks
 from app.services.normalize import canonical
@@ -70,6 +72,38 @@ def test_auth_register_duplicate_and_login(client):
     assert client.post("/api/auth/login", json={"email": "a@x.com", "password": "wrong"}).status_code == 401
     assert client.post("/api/auth/login", json={"email": "a@x.com", "password": "Passw0rd!"}).status_code == 200
     assert get_db().users.find_one({"email": "a@x.com"})["password_hash"].startswith("$2")
+
+
+@pytest.mark.parametrize("email", ["user@mailinator.com", "user@MAILINATOR.COM", "user@nested.sub.mailinator.com"])
+def test_register_rejects_disposable_email(client, email):
+    r = client.post("/api/auth/register", json={
+        "name": "Test User", "email": email, "password": "Passw0rd!", "role": "candidate"})
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Disposable email addresses are not allowed. Please use a permanent email."
+    assert get_db().users.count_documents({}) == 0
+
+
+@pytest.mark.parametrize("email", ["user@gmail.com", "user@evident.demo", "user@mailinator.com.example.com"])
+def test_register_allows_permanent_email(client, email):
+    _, user = register(client, email, "candidate")
+    assert user["email"] == email
+
+
+@pytest.mark.parametrize("email", ["", "invalid-email"])
+def test_register_rejects_invalid_email(client, email):
+    r = client.post("/api/auth/register", json={
+        "name": "Test User", "email": email, "password": "Passw0rd!", "role": "candidate"})
+    assert r.status_code == 422
+
+
+def test_login_allows_existing_disposable_email(client):
+    from app.security import hash_password
+
+    get_db().users.insert_one({"name": "Existing User", "email": "existing@mailinator.com",
+                               "password_hash": hash_password("Passw0rd!"), "role": "candidate"})
+    r = client.post("/api/auth/login", json={"email": "existing@mailinator.com", "password": "Passw0rd!"})
+    assert r.status_code == 200
+    assert r.json()["user"]["email"] == "existing@mailinator.com"
 
 
 def test_logout_revokes_token(client):
